@@ -1,36 +1,62 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 import { Meteor } from 'meteor/meteor';
+import { Tracker } from 'meteor/tracker';
 
-const players = [{
-    _id: '1',
-    name: 'Arnaud',
-    score: 40
-}, {
-    _id: '2',
-    name: 'Dylan',
-    score: -5 
-}, {
-    _id: '3',
-    name: 'Samuel',
-    score: 100
-}];
+import { Players } from '../imports/api/players';
 
-const renderPlayer = function(playersList){
-    return playersList.map(function (player){
-        return <p key={player._id}>{player.name} has {player.score} point(s)</p>;
+const renderPlayer = (playersList) => {
+    return playersList.map((player) => {
+        return (
+            <p key={player._id}>
+                {player.name} has {player.score} point(s).
+                <button onClick={() => {
+                    Players.update({_id : player._id}, {
+                        $inc:{score: 1}
+                    });
+                }}>+1</button>
+                <button onClick={() => {
+                    Players.update({_id : player._id}, {
+                        $inc:{score: -1}
+                    });
+                }}>-1</button>
+                <button onClick={() => Players.remove({_id : player._id})}>X</button>
+            </p>
+        );
     });
 };
 
-Meteor.startup(function (){
-    let title = 'Score Keep';
-    let name = 'Dylan';
-    let jsx = (
-        <div>
-            <h1>{title}</h1>
-            <p>Hello {name}!</p>
-            {renderPlayer(players)}
-        </div>
-    );
-    ReactDom.render(jsx, document.getElementById('app'));
+const handleSubmit = (e) => {
+    let playerName = e.target.playerName.value;
+    e.preventDefault();
+
+    if(playerName){
+        e.target.playerName.value = '';
+        Players.insert({
+            name: playerName,
+            score: 0
+        });
+    }
+};
+
+Meteor.startup(() => {
+    Tracker.autorun(() => {
+        let players = Players.find().fetch();
+
+        let title = 'Score Keep';
+        let name = 'Dylan';
+        let jsx = (
+            <div>
+                <h1>{title}</h1>
+                <p>Hello {name}!</p>
+                {renderPlayer(players)}
+                <form onSubmit={handleSubmit}>
+                    <input type="text" name="playerName" placeholder="Player name"/>
+                    <button>Add player</button>
+                </form>
+            </div>
+        );
+        ReactDom.render(jsx, document.getElementById('app'));    
+    });
+    
 });

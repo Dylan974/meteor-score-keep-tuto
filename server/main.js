@@ -1,5 +1,6 @@
-import {greatUser} from '../imports/utils';
-import add from '../imports/math';
+import { Meteor } from 'meteor/meteor';
+import { Players } from '../imports/api/players';
 
-console.log('Log from /server/main.js');
-console.log(add(7,9));
+Meteor.startup(() => {
+    Players.remove({});
+});
