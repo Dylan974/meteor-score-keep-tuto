@@ -3,7 +3,7 @@ import ReactDom from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 import { Tracker } from 'meteor/tracker';
 
-import { Players } from '../imports/api/players';
+import { Players, calculatePlayerpositions } from '../imports/api/players';
 import App from '../imports/ui/App';
 
 Meteor.startup(() => {
@@ -14,9 +14,10 @@ Meteor.startup(() => {
                 name: 1
             }
         }).fetch();
+        let positionPlayers = calculatePlayerpositions(players);
         let title = 'Score Keep';
         let subtitle = 'Created by Dylan';
-        ReactDom.render(<App title={title} players={players}/>, document.getElementById('app'));    
+        ReactDom.render(<App title={title} players={positionPlayers}/>, document.getElementById('app'));    
     });
     
 });
